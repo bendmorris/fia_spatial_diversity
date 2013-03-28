@@ -3,6 +3,7 @@ import Bio.Phylo as bp
 import metrics
 import numpy as np
 import random
+import multiprocessing
 
 
 tree = bp.read('fia_result.new', 'newick')
@@ -12,7 +13,7 @@ tree = metrics.CachingTree(tree)
 # grid size for grouping communities, in degrees
 GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 100
+COMPARISONS = 1000
 
 # read in route/species abundance information from FIA data file
 grids = {}
@@ -47,7 +48,8 @@ lon_range = (min(lons), max(lons))
 
 
 results = {}
-for grid, routes in grids.iteritems():
+def analyze(arg):
+    grid, routes = arg
     species_pool = []
     for route in routes.values():
         for sp, count in route.iteritems(): 
@@ -97,9 +99,14 @@ for grid, routes in grids.iteritems():
             # this means a species wasn't found in our tree
             pass
     
-    print grid
-    results[grid] = {}
+    results = {}
     for result in sorted(set(comms)):
         percent = 100*len([c for c in comms if c == result]) / float(len(comms))
         print '%s: %s%%' % (result, percent)
-        results[grid][result] = percent
+        results[result] = percent
+    
+    return grid, results
+
+results = multiprocessing.Pool().map(analyze, grids.iteritems())
+
+print results
