@@ -12,7 +12,7 @@ tree = metrics.CachingTree(tree)
 # grid size for grouping communities, in degrees
 GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 1000
+COMPARISONS = 100
 
 # read in route/species abundance information from FIA data file
 grids = {}
@@ -46,6 +46,7 @@ lat_range = (min(lats), max(lats))
 lon_range = (min(lons), max(lons))
 
 
+results = {}
 for grid, routes in grids.iteritems():
     species_pool = []
     for route in routes.values():
@@ -97,6 +98,8 @@ for grid, routes in grids.iteritems():
             pass
     
     print grid
+    results[grid] = {}
     for result in sorted(set(comms)):
-        print '%s: %s%%' % (result, 100*len([c for c in comms if c == result]) / 
-                                        float(len(comms)))
+        percent = 100*len([c for c in comms if c == result]) / float(len(comms))
+        print '%s: %s%%' % (result, percent)
+        results[grid][result] = percent
