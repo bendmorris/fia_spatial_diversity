@@ -107,3 +107,19 @@ def beta_nti(comm1, comm2, tree, reps=1000, verbose=False):
         if verbose: print 'Beta-MNTD=%s' % distribution[-1]
 
     return (mntd - np.mean(distribution)) / np.std(distribution)
+
+
+
+def raup_crick(comm1, comm2, species_pool, reps=1000):
+    s1, s2 = set(comm1), set(comm2)
+    a1, a2 = len(comm1), len(comm2)
+    ssobs = len(set.intersection(s1, s2))
+
+    ssexp = [len(set.intersection(set(random.sample(species_pool, a1)),
+                                  set(random.sample(species_pool, a2))
+                                  )) 
+             for _ in xrange(reps)]
+
+    return (len([s for s in ssexp if s > ssobs]) +
+            len([s for s in ssexp if s == ssobs])/2.
+            )/(len(ssexp)) - 0.5 * 2

@@ -12,7 +12,7 @@ tree = metrics.CachingTree(tree)
 # grid size for grouping communities, in degrees
 GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 100
+COMPARISONS = 1000
 
 # read in route/species abundance information from FIA data file
 grids = {}
@@ -39,7 +39,7 @@ with open('fia.csv') as data_file:
             routes[route] = {}
         routes[route][species_name] = count
 
-
+print len(grids), 'total grids'
 # get the range of lat/lon values
 lats, lons = [route[0] for route in routes], [route[1] for route in routes]
 lat_range = (min(lats), max(lats))
@@ -47,6 +47,11 @@ lon_range = (min(lons), max(lons))
 
 
 for grid, routes in grids.iteritems():
+    species_pool = []
+    for route in routes.values():
+        for sp, count in route.iteritems(): 
+            species_pool += [sp] * count
+
     n = len(routes)
     # compare all combinations of routes if n choose 2 < COMPARISONS,
     # otherwise compare random combinations until you reach COMBINATIONS
@@ -60,21 +65,38 @@ for grid, routes in grids.iteritems():
                 yield tuple(sorted(random.sample(routes.keys(), 2)))
         to_compare = random_comparison()
     
-    # build a list of beta_ntis by comparing pairs of communities
-    ntis = []
-    while len(ntis) < min(COMPARISONS, comparisons):
+    # compare pairs of communities
+    comms = []
+    while len(comms) < min(COMPARISONS, comparisons):
         try: r1, r2 = next(to_compare)
         except StopIteration: break
     
         if len(routes[r1]) < 2 or len(routes[r2]) < 2: continue
     
         try:
-            m = metrics.beta_nti(routes[r1], routes[r2], tree, 
-                                 verbose=False, reps=1000)
-            if not m == np.nan:
-                ntis.append(m)
+            # compute beta NTI
+            nti = metrics.beta_nti(routes[r1], routes[r2], tree, 
+                                   verbose=False, reps=1000)
+            if nti == np.nan: continue
+
+            if abs(nti) >= 2:
+                # abs(beta NTI) >= 2 indicates selection
+                result = 'selection'
+            else:
+                # < 2: raup-crick to determine drift or dispersal
+                rc = metrics.raup_crick(routes[r1], routes[r2], species_pool)
+                if rc <= -0.95:
+                    result = 'homogenizing dispersal'
+                elif rc >= 0.95:
+                    result = 'dispersal limitation'
+                else:
+                    result = 'drift'
+            comms.append(result)
         except IndexError:
             # this means a species wasn't found in our tree
             pass
     
-    print grid, ntis
+    print grid
+    for result in sorted(set(comms)):
+        print '%s: %s%%' % (result, 100*len([c for c in comms if c == result]) / 
+                                        float(len(comms)))
