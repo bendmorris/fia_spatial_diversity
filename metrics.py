@@ -6,22 +6,31 @@ import random
 
 # cache species distances to avoid redundant work
 cached_distances = {}
+valid_names = {}
 def distance(tree, *species):
     species = tuple(sorted(species))
     if not species in cached_distances:
         try:
             cached_distances[species] = tree.distance(*species)
+            valid_names[species[0]] = species[0]
+            valid_names[species[1]] = species[1]
+        except KeyboardInterrupt: raise
         except:
             nodes = []
             for s in species:
-                if not tree.find_any(s):
+                if s in valid_names: s = valid_names[s]
+                elif tree.find_any(s):
+                    valid_names[s] = s
+                else:
                     terms = [t.name for t in tree.get_terminals()]
                     genus = s.split()[0]
                     congeners = [t for t in terms if t.startswith(genus + ' ')]
-                    s = congeners[0]
+                    valid_names[s] = congeners[0]
+                    s = valid_names[s]
                 nodes.append(s)
             species = tuple(sorted(nodes))
-            cached_distances[species] = tree.distance(*species)
+            if not species in cached_distances:
+                cached_distances[species] = tree.distance(*species)
 
     return cached_distances[species]
 
