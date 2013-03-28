@@ -1,12 +1,26 @@
 # functions used in Stegen et al. 2013
 
 import numpy as np
+import Bio.Phylo as bp
 import random
 
 
 # cache species distances to avoid redundant work
 cached_distances = {}
 valid_names = {}
+
+
+class CachingTree(bp.Newick.Tree):
+    _paths = {}
+    def __init__(self, tree):
+        self.__dict__.update(tree.__dict__)
+
+    def get_path(self, target, **kwargs):
+        if not target in self._paths:
+            self._paths[target] = bp.Newick.Tree.get_path(self, target=target, 
+                                                          **kwargs)
+        return self._paths[target]
+
 def distance(tree, *species):
     species = tuple(sorted(species))
     if not species in cached_distances:
