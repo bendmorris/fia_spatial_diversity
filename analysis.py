@@ -12,7 +12,7 @@ tree = metrics.CachingTree(tree)
 # grid size for grouping communities, in degrees
 GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 10
+COMPARISONS = 100
 
 # read in route/species abundance information from FIA data file
 grids = {}
@@ -47,21 +47,34 @@ lon_range = (min(lons), max(lons))
 
 
 for grid, routes in grids.iteritems():
-    tried = set()
-    n = 0
-    while len(tried) < COMPARISONS:
-        s1, s2 = tuple(sorted(random.sample(routes.keys(), 2)))
-        #if (s1, s2) in tried: continue
-        if len(routes[s1]) < 2 or len(routes[s2]) < 2: continue
-        #tried.add((s1, s2))
-
-        print n, s1, s2
-        print len(routes[s1]), len(routes[s2])
+    n = len(routes)
+    # compare all combinations of routes if n choose 2 < COMPARISONS,
+    # otherwise compare random combinations until you reach COMBINATIONS
+    # total comparisons
+    comparisons = n*(n-1) / 2
+    if comparisons < COMPARISONS:
+        to_compare = ((r1, r2) for r1 in routes for r2 in routes if not r1 == r2)
+    else:
+        def random_comparison():
+            while True:
+                yield tuple(sorted(random.sample(routes.keys(), 2)))
+        to_compare = random_comparison()
+    
+    # build a list of beta_ntis by comparing pairs of communities
+    ntis = []
+    while len(ntis) < min(COMPARISONS, comparisons):
+        try: r1, r2 = next(to_compare)
+        except StopIteration: break
+    
+        if len(routes[r1]) < 2 or len(routes[r2]) < 2: continue
+    
         try:
-            m = metrics.beta_nti(routes[s1], routes[s2], tree, 
+            m = metrics.beta_nti(routes[r1], routes[r2], tree, 
                                  verbose=False, reps=1000)
-            print m
-            n += 1
+            if not m == np.nan:
+                ntis.append(m)
         except IndexError:
             # this means a species wasn't found in our tree
-            print 'fail'
+            pass
+    
+    print grid, ntis
