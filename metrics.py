@@ -106,7 +106,11 @@ def beta_nti(comm1, comm2, tree, reps=1000, verbose=False):
         distribution.append(beta_mntd(random_comm1, random_comm2, tree))
         if verbose: print 'Beta-MNTD=%s' % distribution[-1]
 
-    return (mntd - np.mean(distribution)) / np.std(distribution)
+    std = np.std(distribution)
+    if std == 0: return np.nan
+    mean = np.mean(distribution)
+    return (mntd - mean) / std
+    
 
 
 
