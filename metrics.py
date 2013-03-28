@@ -9,7 +9,20 @@ cached_distances = {}
 def distance(tree, *species):
     species = tuple(sorted(species))
     if not species in cached_distances:
-        cached_distances[species] = tree.distance(*species)
+        try:
+            cached_distances[species] = tree.distance(*species)
+        except:
+            nodes = []
+            for s in species:
+                if not tree.find_any(s):
+                    terms = [t.name for t in tree.get_terminals()]
+                    genus = s.split()[0]
+                    congeners = [t for t in terms if t.startswith(genus + ' ')]
+                    s = congeners[0]
+                nodes.append(s)
+            species = tuple(sorted(nodes))
+            cached_distances[species] = tree.distance(*species)
+
     return cached_distances[species]
 
 
