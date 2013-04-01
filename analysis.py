@@ -4,6 +4,7 @@ import metrics
 import numpy as np
 import random
 import multiprocessing
+import cPickle as pkl
 
 
 tree = bp.read('fia_result.new', 'newick')
@@ -109,4 +110,5 @@ def analyze(arg):
 
 results = multiprocessing.Pool().map(analyze, grids.iteritems())
 
-print results
+with open('results.pkl', 'w') as results_file:
+    pkl.dump(results, results_file, -1)
