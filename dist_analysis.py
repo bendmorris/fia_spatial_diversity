@@ -13,8 +13,8 @@ tree = bp.read('fia_result.new', 'newick')
 tree = metrics.CachingTree(tree)
 
 # grid size for grouping communities, in degrees
-BIN_SIZE = 100
-MAX_BIN = 2000
+BIN_SIZE = 50
+MAX_BIN = 2500
 result_bins = {bin_size: [] for bin_size in np.arange(0, MAX_BIN, BIN_SIZE)}
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
@@ -101,6 +101,9 @@ def analyze(arg):
     return (bin_size, results)
 
 results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
+results = dict(results)
+results = {a: {len([x for x in b if x == type])/float(len(b)) for type in set(b)} 
+           for a, b in results.iteritems()}
 
 with open('dist_results.pkl', 'w') as results_file:
     pkl.dump(results, results_file, -1)
