@@ -4,6 +4,7 @@ import metrics
 import numpy as np
 import random
 import multiprocessing
+import math
 import cPickle as pkl
 
 
@@ -12,12 +13,14 @@ tree = bp.read('fia_result.new', 'newick')
 tree = metrics.CachingTree(tree)
 
 # grid size for grouping communities, in degrees
-GRID_SIZE = 1
+BIN_SIZE = 100
+MAX_BIN = 2000
+result_bins = {bin_size: [] for bin_size in np.arange(0, MAX_BIN, BIN_SIZE)}
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
 
 # read in route/species abundance information from FIA data file
-grids = {}
+routes = {}
 all_species = set()
 with open('fia.csv') as data_file:
     reader = csv.reader(data_file)
@@ -32,51 +35,44 @@ with open('fia.csv') as data_file:
         all_species.add(species_name)
         route = (lat,lon)
 
-        grid = (int(lat), int(lon))
-        if not grid in grids:
-            grids[grid] = {}
-        routes = grids[grid]
+        loc = (lat, lon)
+        if not loc in routes:
+            routes[loc] = {}
+        routes[loc][species_name] = count
 
-        if not route in routes:
-            routes[route] = {}
-        routes[route][species_name] = count
-
-print len(grids), 'total grids'
 # get the range of lat/lon values
 lats, lons = [route[0] for route in routes], [route[1] for route in routes]
 lat_range = (min(lats), max(lats))
 lon_range = (min(lons), max(lons))
 
 
-results = {}
-def analyze(arg):
-    grid, routes = arg
-    species_pool = []
-    for route in routes.values():
-        for sp, count in route.iteritems(): 
-            species_pool += [sp] * count
+def distance(p1, p2):
+    '''Approximate distance between two lat/lon points.'''
+    y1, x1 = p1
+    y2, x2 = p2
+    x1 = 111.320*y1*(math.pi)/180
+    x2 = 111.320*y2*(math.pi)/180
+    y1, y2 = [110.54*y for y in (y1, y2)]
+    return ((x1-x2)**2 + (y1-y2)**2)**0.5
 
-    n = len(routes)
-    # compare all combinations of routes if n choose 2 < COMPARISONS,
-    # otherwise compare random combinations until you reach COMBINATIONS
-    # total comparisons
-    comparisons = n*(n-1) / 2
-    if comparisons < COMPARISONS:
-        to_compare = ((r1, r2) for r1 in routes for r2 in routes if not r1 == r2)
-    else:
-        def random_comparison():
-            while True:
-                yield tuple(sorted(random.sample(routes.keys(), 2)))
-        to_compare = random_comparison()
+def analyze(arg):
+    bin_size, results = arg
     
-    # compare pairs of communities
-    comms = []
-    while len(comms) < min(COMPARISONS, comparisons):
-        try: r1, r2 = next(to_compare)
-        except StopIteration: break
-    
-        if len(routes[r1]) < 2 or len(routes[r2]) < 2: continue
-    
+    while len(results) < COMPARISONS:
+        r1, r2 = random.sample(routes, 2)
+        while not bin_size <= distance(r1, r2) <= bin_size + BIN_SIZE:
+            r1, r2 = random.sample(routes, 2)
+            
+        lat_range = min((r1[0], r2[0])), max((r1[0], r2[0]))
+        lon_range = min((r1[1], r2[1])), max((r1[1], r2[1]))
+        
+        species_pool = []
+        for lat, lon in routes:
+            if (lat_range[0] <= lat <= lat_range[1] and
+                lon_range[0] <= lon <= lon_range[1]):
+                for sp, count in routes[lat,lon].iteritems():
+                    species_pool += [sp] * count
+
         try:
             # compute beta NTI
             nti = metrics.beta_nti(routes[r1], routes[r2], tree, 
@@ -95,20 +91,16 @@ def analyze(arg):
                     result = 'dispersal limitation'
                 else:
                     result = 'drift'
-            comms.append(result)
         except IndexError:
             # this means a species wasn't found in our tree
-            pass
+            continue
+        
+        print bin_size, result
+        results.append(result)
     
-    results = {}
-    for result in sorted(set(comms)):
-        percent = 100*len([c for c in comms if c == result]) / float(len(comms))
-        print '%s: %s%%' % (result, percent)
-        results[result] = percent
-    
-    return grid, results
+    return (bin_size, results)
 
-results = multiprocessing.Pool().map(analyze, grids.iteritems())
+results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
 
-with open('grid_results.pkl', 'w') as results_file:
+with open('dist_results.pkl', 'w') as results_file:
     pkl.dump(results, results_file, -1)
