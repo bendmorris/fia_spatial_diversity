@@ -102,7 +102,7 @@ def analyze(arg):
 
 results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
 results = dict(results)
-results = {a: {type: len([x for x in b if x == type])/float(len(b)) 
+results = {a: {type: 100.*len([x for x in b if x == type])/len(b) 
                for type in set(b)} 
            for a, b in results.iteritems()}
 
