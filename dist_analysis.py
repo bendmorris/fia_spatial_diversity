@@ -102,7 +102,8 @@ def analyze(arg):
 
 results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
 results = dict(results)
-results = {a: {len([x for x in b if x == type])/float(len(b)) for type in set(b)} 
+results = {a: {type: len([x for x in b if x == type])/float(len(b)) 
+               for type in set(b)} 
            for a, b in results.iteritems()}
 
 with open('dist_results.pkl', 'w') as results_file:
