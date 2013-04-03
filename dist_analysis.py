@@ -8,7 +8,7 @@ import math
 import cPickle as pkl
 
 
-tree = bp.read('fia_result.new', 'newick')
+tree = bp.read('fia.newick', 'newick')
 #tree.get_path = metrics.get_path_with_cache
 tree = metrics.CachingTree(tree)
 
