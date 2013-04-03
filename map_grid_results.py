@@ -44,5 +44,3 @@ for result_type in result_types:
     cbar = plt.colorbar()
     cbar.set_label('% site comparisons')
     plt.savefig('grid_%s.png' % result_type)
-    
-plt.show()
