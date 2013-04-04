@@ -13,9 +13,8 @@ for result_type in result_types:
     plt.xlabel('distance (km)')
     plt.ylabel('% of pairwise comparisons')
     xs, ys = [], []
-    for x in results.keys():
-        if result_type in results[x]:
-            xs.append(x)
-            ys.append(results[x][result_type])
+    xs = results.keys()
+    ys = [results[x][result_type] if result_type in results[x] else 0
+          for x in xs]
     plt.scatter(xs, ys)
     plt.savefig('dist_%s.png' % result_type)
