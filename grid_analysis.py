@@ -15,6 +15,8 @@ tree = metrics.CachingTree(tree)
 GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
+# ignore grid cells unless they have at least this many routes
+MIN_SITES = 50
 
 # read in route/species abundance information from FIA data file
 grids = {}
@@ -41,6 +43,7 @@ with open('fia.csv') as data_file:
             routes[route] = {}
         routes[route][species_name] = count
 
+grids = {x:y for x, y in grids.iteritems() if len(y) > MIN_SITES}
 print len(grids), 'total grids'
 # get the range of lat/lon values
 lats, lons = [route[0] for route in routes], [route[1] for route in routes]
@@ -57,6 +60,7 @@ def analyze(arg):
             species_pool += [sp] * count
 
     n = len(routes)
+    
     # compare all combinations of routes if n choose 2 < COMPARISONS,
     # otherwise compare random combinations until you reach COMBINATIONS
     # total comparisons
@@ -108,7 +112,11 @@ def analyze(arg):
     
     return grid, results
 
-results = multiprocessing.Pool().map(analyze, grids.iteritems())
+results = dict([
+                result for result in 
+                multiprocessing.Pool().map(analyze, grids.iteritems())
+                if result
+                ])
 
 with open('grid_results.pkl', 'w') as results_file:
     pkl.dump(results, results_file, -1)
