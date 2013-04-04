@@ -18,15 +18,15 @@ with open('fia.csv') as data_file:
         if not (lat, lon) in richness:
             richness[lat,lon] = set()
         if not (lat, lon) in abundance:
-            abundance[lat,lon] = list()
+            abundance[lat,lon] = 0
         species_name = '%s %s' % (genus, species)
         richness[lat, lon].add(species_name)
-        abundance[lat, lon].append(species_name)
+        abundance[lat, lon] += int(count)
 
 for point in richness:
     richness[point] = len(richness[point])
 for point in abundance:
-    abundance[point] = len(abundance[point])
+    abundance[point] = np.log(abundance[point])
         
 for title, results in ('richness', richness), ('abundance', abundance):
     plt.figure()
