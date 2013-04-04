@@ -1,7 +1,8 @@
 grid_figures = grid_drift.png grid_homogenizing\ dispersal.png grid_selection.png
 dist_figures = dist_drift.png dist_homogenizing\ dispersal.png dist_selection.png
+fia_figures = fia_richness.png fia_abundance.png
 
-all : $(grid_figures) $(dist_figures)
+all : $(grid_figures) $(dist_figures) $(fia_figures)
 
 clean : 
 	rm *.png *.pkl
@@ -17,3 +18,6 @@ $(dist_figures) : plot_dist_results.py dist_results.pkl
 
 dist_results.pkl : fia.csv fia.newick dist_analysis.py
 	python dist_analysis.py
+
+$(fia_figures) : fia.csv plot_fia.py
+	python plot_fia.py
