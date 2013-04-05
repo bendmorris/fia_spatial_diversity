@@ -24,7 +24,7 @@ with open('fia.csv') as data_file:
         abundance[lat, lon] += int(count)
 
 for point in richness:
-    richness[point] = len(richness[point])
+    richness[point] = np.log(len(richness[point]))
 for point in abundance:
     abundance[point] = np.log(abundance[point])
         
