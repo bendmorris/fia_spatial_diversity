@@ -15,6 +15,18 @@ result_bins = {bin_size: [] for bin_size in np.arange(0, MAX_BIN, BIN_SIZE)}
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
 
+def radians(deg):
+    return deg/180.*(math.pi)
+
+def distance(p1, p2):
+    '''Approximate distance between two lat/lon points.'''
+    y1, x1 = p1
+    y2, x2 = p2
+    dy = radians(abs(y2-y1))
+    dx = radians(abs(x2-x1))
+    a = math.sin(dy/2)**2 + math.sin(dx/2)**2 * math.cos(radians(y1)) * math.cos(radians(y2))
+    c = 2 * math.atan2(a**0.5, (1-a)**0.5)
+    return 6371 * c
 
 def main():
     tree = bp.read('fia.newick', 'newick')
@@ -48,15 +60,6 @@ def main():
     lat_range = (min(lats), max(lats))
     lon_range = (min(lons), max(lons))
 
-
-    def distance(p1, p2):
-        '''Approximate distance between two lat/lon points.'''
-        y1, x1 = p1
-        y2, x2 = p2
-        x1 = 111.320*y1*(math.pi)/180
-        x2 = 111.320*y2*(math.pi)/180
-        y1, y2 = [110.54*y for y in (y1, y2)]
-        return ((x1-x2)**2 + (y1-y2)**2)**0.5
 
     def analyze(arg):
         bin_size, results = arg
