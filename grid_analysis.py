@@ -5,6 +5,12 @@ import numpy as np
 import random
 import multiprocessing
 import cPickle as pkl
+import sys
+
+try:
+    input_file, tree_file = sys.argv[1], sys.argv[2]
+except:
+    input_file, tree_file = 'fia.csv', 'fia.newick'
 
 
 # grid size for grouping communities, in degrees
@@ -12,17 +18,17 @@ GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
 # ignore grid cells unless they have at least this many routes
-MIN_SITES = 50
+MIN_SITES = 20
 
 
-tree = bp.read('fia.newick', 'newick')
+tree = bp.read(tree_file, 'newick')
 #tree.get_path = metrics.get_path_with_cache
 tree = metrics.CachingTree(tree)
 
 # read in route/species abundance information from FIA data file
 grids = {}
 all_species = set()
-with open('fia.csv') as data_file:
+with open(input_file) as data_file:
     reader = csv.reader(data_file)
     # skip header row
     next(reader)
