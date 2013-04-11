@@ -3,7 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-x_shift = 0
+x_shift = -0.5
 y_shift = 0
 ROUND = 0.5
 

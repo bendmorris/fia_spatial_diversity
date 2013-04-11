@@ -7,6 +7,9 @@ all : $(grid_figures) $(dist_figures) $(fia_figures)
 clean : 
 	rm *.png *.pkl
 
+fia.csv : mk_csv.py fia.sqlite query.sql
+	python mk_csv.py
+
 $(grid_figures) : map_grid_results.py grid_results.pkl
 	python map_grid_results.py
 
