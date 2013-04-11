@@ -5,30 +5,39 @@ import numpy as np
 
 x_shift = 0
 y_shift = 0
-ROUND = 1
+ROUND = 0.5
+
+def xround(x, n):
+    return int(x/n) * n
 
 
 with open('fia.csv') as data_file:
     reader = csv.reader(data_file)
     # skip header row
     next(reader)
-    richness, abundance = {}, {}
+    richness, abundance, plot_density = {}, {}, {}
     for lat, lon, genus, species, count in reader:
-        lat, lon = round(float(lat),ROUND), round(float(lon),ROUND)
-        if not (lat, lon) in richness:
-            richness[lat,lon] = set()
-        if not (lat, lon) in abundance:
-            abundance[lat,lon] = 0
+        y, x = xround(float(lat),ROUND), xround(float(lon),ROUND)
+        if not (y, x) in richness:
+            richness[y,x] = set()
+        if not (y, x) in abundance:
+            abundance[y,x] = 0
+        if not (y, x) in plot_density:
+            plot_density[y,x] = set()
         species_name = '%s %s' % (genus, species)
-        richness[lat, lon].add(species_name)
-        abundance[lat, lon] += int(count)
+        richness[y, x].add(species_name)
+        abundance[y, x] += int(count)
+        plot_density[y, x].add((lat, lon))
+        
 
 for point in richness:
     richness[point] = np.log(len(richness[point]))
 for point in abundance:
     abundance[point] = np.log(abundance[point])
+for point in plot_density:
+    plot_density[point] = np.log(len(plot_density[point]))
         
-for title, results in ('richness', richness), ('abundance', abundance):
+for title, results in ('richness', richness), ('abundance', abundance), ('plot density', plot_density):
     plt.figure()
     
     lats = set([lat for lat, lon in results.keys()])
@@ -55,4 +64,4 @@ for title, results in ('richness', richness), ('abundance', abundance):
     cbar = plt.colorbar()
     cbar.set_label(title)
 
-    plt.savefig('fia_%s.png' % title)
+    plt.savefig('fia_%s.png' % title.replace(' ', '_'))
