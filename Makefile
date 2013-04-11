@@ -2,7 +2,10 @@ grid_figures = grid_drift.png grid_homogenizing\ dispersal.png grid_selection.pn
 dist_figures = dist_drift.png dist_homogenizing\ dispersal.png dist_selection.png
 fia_figures = fia_richness.png fia_abundance.png fia_plot_density.png
 
-all : $(grid_figures) $(dist_figures) $(fia_figures)
+all : $(fia_figures)
+
+grid : $(grid_figures)
+dist : $(dist_figures)
 
 clean : 
 	rm *.png *.pkl
