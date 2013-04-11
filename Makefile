@@ -1,6 +1,6 @@
 grid_figures = grid_drift.png grid_homogenizing\ dispersal.png grid_selection.png
 dist_figures = dist_drift.png dist_homogenizing\ dispersal.png dist_selection.png
-fia_figures = fia_richness.png fia_abundance.png fia_plot_density.png
+fia_figures = fia_richness.png fia_abundance.png fia_plot_density.png fia_plt_dens_richness.png
 
 all : $(fia_figures)
 

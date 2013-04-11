@@ -2,13 +2,15 @@ from mpl_toolkits.basemap import Basemap
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as s
+import math
 
 x_shift = -0.5
 y_shift = 0
 ROUND = 0.5
 
 def xround(x, n):
-    return int(x/n) * n
+    return int(x/n + n/2) * n
 
 
 with open('fia.csv') as data_file:
@@ -64,4 +66,23 @@ for title, results in ('richness', richness), ('abundance', abundance), ('plot d
     cbar = plt.colorbar()
     cbar.set_label(title)
 
+    if title == 'richness':
+        ays = data
+    elif title == 'plot density':
+        axs = data
+
     plt.savefig('fia_%s.png' % title.replace(' ', '_'))
+
+plt.figure()
+axs = math.e**axs.ravel()
+ays = math.e**ays.ravel()
+plt.scatter(axs, ays)
+m, b, r, p, se = s.linregress(axs, ays)
+x1, x2 = min(axs), max(axs)
+plt.plot([x1, x2], [b+m*x1, b+m*x2], 
+         label='y=%sx+%s\nr^2=%s' % 
+         tuple([round(n, 2) for n in (m, b, r**2)]))
+plt.xlabel('plot density')
+plt.ylabel('species richness')
+plt.legend(loc='lower right')
+plt.savefig('fia_plt_dens_richness.png')
