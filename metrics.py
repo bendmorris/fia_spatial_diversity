@@ -107,7 +107,7 @@ def beta_nti(comm1, comm2, tree, reps=1000, verbose=False):
         if verbose: print 'Beta-MNTD=%s' % distribution[-1]
 
     std = np.std(distribution)
-    if std == 0: return np.nan
+    if std == 0: return 0
     mean = np.mean(distribution)
     return (mntd - mean) / std
     
@@ -124,6 +124,6 @@ def raup_crick(comm1, comm2, species_pool, reps=1000):
                                   )) 
              for _ in xrange(reps)]
 
-    return (len([s for s in ssexp if s > ssobs]) +
-            len([s for s in ssexp if s == ssobs])/2.
-            )/(len(ssexp)) - 0.5 * 2
+    return ((len([s for s in ssexp if s > ssobs]) +
+             len([s for s in ssexp if s == ssobs])/2.
+             )/(len(ssexp)) - 0.5) * 2

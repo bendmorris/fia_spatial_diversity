@@ -16,13 +16,13 @@ fia.csv : mk_csv.py fia.sqlite query.sql
 $(grid_figures) : map_grid_results.py grid_results.pkl
 	python map_grid_results.py
 
-grid_results.pkl : fia.csv fia.newick grid_analysis.py
+grid_results.pkl : fia.csv fia.newick grid_analysis.py metrics.py
 	python grid_analysis.py
 
 $(dist_figures) : plot_dist_results.py dist_results.pkl
 	python plot_dist_results.py
 
-dist_results.pkl : fia.csv fia.newick dist_analysis.py
+dist_results.pkl : fia.csv fia.newick dist_analysis.py metrics.py
 	python dist_analysis.py
 
 $(fia_figures) : fia.csv fia_maps.py
