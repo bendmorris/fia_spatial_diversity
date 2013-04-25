@@ -51,7 +51,7 @@ with open(input_file) as data_file:
             routes[route] = {}
         routes[route][species_name] = count
 
-grids = {x:y for x, y in grids.iteritems() if len(y) > MIN_SITES}
+grids = {x:y for x, y in grids.iteritems() if len(y) >= MIN_SITES}
 print len(grids), 'total grids'
 # get the range of lat/lon values
 lats, lons = [route[0] for route in routes], [route[1] for route in routes]
