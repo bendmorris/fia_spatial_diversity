@@ -78,11 +78,9 @@ def analyze(arg):
         lon_range = min((r1[1], r2[1])), max((r1[1], r2[1]))
         
         species_pool = []
-        for lat, lon in routes:
-            if (lat_range[0] <= lat <= lat_range[1] and
-                lon_range[0] <= lon <= lon_range[1]):
-                for sp, count in routes[lat,lon].iteritems():
-                    species_pool += [sp] * count
+        for route in (r1,r2):
+            for sp, count in routes[route].iteritems():
+                species_pool += [sp] * count
 
         try:
             # compute beta NTI
