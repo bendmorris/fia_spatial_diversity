@@ -6,6 +6,7 @@ import random
 import multiprocessing
 import cPickle as pkl
 import sys
+import time
 
 try:
     input_file, tree_file = sys.argv[1], sys.argv[2]
@@ -18,7 +19,7 @@ GRID_SIZE = 1
 # number of pairwise route comparisons to perform per grid cell
 COMPARISONS = 1000
 # ignore grid cells unless they have at least this many routes
-MIN_SITES = 20
+MIN_SITES = 10
 
 
 tree = bp.read(tree_file, 'newick')
@@ -111,7 +112,7 @@ def analyze(arg):
             # this means a species wasn't found in our tree
             pass
     
-    print '**', grid
+    print '**', grid, time.strftime('%D %T')
     results = {}
     for result in sorted(set(comms)):
         percent = 100*len([c for c in comms if c == result]) / float(len(comms))
