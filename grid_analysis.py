@@ -111,6 +111,7 @@ def analyze(arg):
             # this means a species wasn't found in our tree
             pass
     
+    print '**', grid
     results = {}
     for result in sorted(set(comms)):
         percent = 100*len([c for c in comms if c == result]) / float(len(comms))
