@@ -7,11 +7,7 @@ import multiprocessing
 import math
 import cPickle as pkl
 import sys
-
-try:
-    input_file, tree_file = sys.argv[1], sys.argv[2]
-except:
-    input_file, tree_file = 'fia.csv', 'fia.newick'
+from data import *
 
 
 # grid size for grouping communities, in degrees
@@ -34,10 +30,6 @@ def distance(p1, p2):
     c = 2 * math.atan2(a**0.5, (1-a)**0.5)
     return 6371 * c
 
-tree = bp.read(tree_file, 'newick')
-#tree.get_path = metrics.get_path_with_cache
-tree = metrics.CachingTree(tree)
-
 
 # read in route/species abundance information from FIA data file
 routes = {}
@@ -52,13 +44,18 @@ with open(input_file) as data_file:
         if species == 'unknown': continue
 
         species_name = '%s %s' % (genus, species)
-        all_species.add(species_name)
+        species_node = find_species(species_name, tree)
+        if not species_node: continue
+
+        all_species.add(species_node)
         route = (lat,lon)
 
         loc = (lat, lon)
         if not loc in routes:
             routes[loc] = {}
-        routes[loc][species_name] = count
+        if not species_node in routes[loc]:
+            routes[loc][species_node] = 0
+        routes[loc][species_node] += count
 
 # get the range of lat/lon values
 lats, lons = [route[0] for route in routes], [route[1] for route in routes]
@@ -111,7 +108,8 @@ def analyze(arg):
 
 
 if __name__ == '__main__':
-    results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
+    #results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
+    results = map(analyze, result_bins.iteritems())
     results = dict(results)
     results = {a: {type: 100.*len([x for x in b if x == type])/len(b) 
                    for type in set(b)} 
