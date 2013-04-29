@@ -5,7 +5,9 @@ fia_figures = fia_richness.png fia_abundance.png fia_plot_density.png fia_plt_de
 all : $(fia_figures)
 
 grid : $(grid_figures)
+	cp grid_results.pkl $(grid_figures) ~/Dropbox/Dev/
 dist : $(dist_figures)
+	cp dist_results.pkl $(dist_figures) ~/Dropbox/Dev/
 
 clean : 
 	rm *.png *.pkl

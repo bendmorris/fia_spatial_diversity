@@ -55,7 +55,8 @@ def shuffled_communities(comm1, comm2, tree, n=1000):
     terms = subtree.get_terminals()
     
     for i in xrange(n):
-        yield [{random.choice(terms): v for v in c.itervalues()} for c in (comm1, comm2)]
+        yield [{k: v for k, v in zip(random.sample(terms, len(c)), c.itervalues())} 
+               for c in (comm1, comm2)]
 
 
 def beta_nti(comm1, comm2, tree, reps=1000, verbose=False):

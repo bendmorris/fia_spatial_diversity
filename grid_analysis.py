@@ -7,7 +7,7 @@ import multiprocessing
 import cPickle as pkl
 import sys
 import time
-from data import input_file, tree
+from data import *
 
 
 # grid size for grouping communities, in degrees
@@ -31,7 +31,10 @@ with open(input_file) as data_file:
         if species == 'unknown': continue
 
         species_name = '%s %s' % (genus, species)
-        all_species.add(species_name)
+        species_node = find_species(species_name, tree)
+        if not species_node: continue
+
+        all_species.add(species_node)
         route = (lat,lon)
 
         grid = (int(lat), int(lon))
@@ -41,7 +44,7 @@ with open(input_file) as data_file:
 
         if not route in routes:
             routes[route] = {}
-        routes[route][species_name] = count
+        routes[route][species_node] = count
 
 grids = {x:y for x, y in grids.iteritems() if len(y) >= MIN_SITES}
 print len(grids), 'total grids'

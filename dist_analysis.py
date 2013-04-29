@@ -15,7 +15,7 @@ BIN_SIZE = 50
 MAX_BIN = 2500
 result_bins = {bin_size: [] for bin_size in np.arange(0, MAX_BIN, BIN_SIZE)}
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 1000
+COMPARISONS = 100
 
 def radians(deg):
     return deg/180.*(math.pi)
@@ -108,8 +108,7 @@ def analyze(arg):
 
 
 if __name__ == '__main__':
-    #results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
-    results = map(analyze, result_bins.iteritems())
+    results = multiprocessing.Pool().map(analyze, result_bins.iteritems())
     results = dict(results)
     results = {a: {type: 100.*len([x for x in b if x == type])/len(b) 
                    for type in set(b)} 
