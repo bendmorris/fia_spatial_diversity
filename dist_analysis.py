@@ -12,10 +12,10 @@ from data import *
 
 # grid size for grouping communities, in degrees
 BIN_SIZE = 50
-MAX_BIN = 2500
+MAX_BIN = 3000
 result_bins = {bin_size: [] for bin_size in np.arange(0, MAX_BIN, BIN_SIZE)}
 # number of pairwise route comparisons to perform per grid cell
-COMPARISONS = 100
+COMPARISONS = 1000
 
 def radians(deg):
     return deg/180.*(math.pi)
