@@ -66,10 +66,16 @@ lon_range = (min(lons), max(lons))
 def analyze(arg):
     bin_size, results = arg
     
+    found=False
+    trials=0
     while len(results) < COMPARISONS:
         r1, r2 = random.sample(routes, 2)
-        while not bin_size <= distance(r1, r2) <= bin_size + BIN_SIZE:
+        while not bin_size <= distance(r1, r2) <= bin_size + BIN_SIZE and trials < 10000:
             r1, r2 = random.sample(routes, 2)
+            if not found: trials += 1
+
+        if trials >= 10000: return (bin_size, [])
+        else: found=True
             
         lat_range = min((r1[0], r2[0])), max((r1[0], r2[0]))
         lon_range = min((r1[1], r2[1])), max((r1[1], r2[1]))
@@ -87,7 +93,7 @@ def analyze(arg):
 
             if abs(nti) >= 2:
                 # abs(beta NTI) >= 2 indicates selection
-                result = 'selection'
+                result = 'selection' + ('+' if nti > 0 else '-')
             else:
                 # < 2: raup-crick to determine drift or dispersal
                 rc = metrics.raup_crick(routes[r1], routes[r2], species_pool)
@@ -112,7 +118,8 @@ if __name__ == '__main__':
     results = dict(results)
     results = {a: {type: 100.*len([x for x in b if x == type])/len(b) 
                    for type in set(b)} 
-               for a, b in results.iteritems()}
+               for a, b in results.iteritems()
+               if b}
 
     with open('dist_results.pkl', 'w') as results_file:
         pkl.dump(results, results_file, -1)
