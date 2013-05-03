@@ -1,6 +1,0 @@
-# script to add species table to FIA
-name: FIA Species Table
-shortname: fia
-
-# tables
-table: species, REF_SPECIES.CSV
