@@ -2,6 +2,7 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import cPickle as pkl
 import numpy as np
+from data import map
 
 
 x_shift = -1
@@ -18,9 +19,7 @@ for result_type in result_types:
     points = []
     plt.figure()
     plt.title(result_type)
-    map = Basemap(llcrnrlon=min(lons)+x_shift,llcrnrlat=min(lats)+y_shift,
-                  urcrnrlon=max(lons)+x_shift,urcrnrlat=max(lats)+y_shift,
-                  projection='merc',lat_1=33,lat_2=45,lon_0=-95,resolution='l')
+    map = get_map(lats, lons, x_shift, y_shift)
     map.drawcoastlines(linewidth=1)
     map.drawcountries(linewidth=1)
     map.drawstates(linewidth=0.5)

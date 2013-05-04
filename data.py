@@ -1,5 +1,6 @@
 import Bio.Phylo as bp
 import sys
+from mpl_toolkits.basemap import Basemap
 
 
 try:
@@ -23,3 +24,11 @@ def find_species(s, tree):
                 no_match.add(s)
                 return None
     return spp[s]
+
+
+def get_map(lats, lons, x_shift, y_shift):
+    map = Basemap(llcrnrlon=max(-125,min(lons))+x_shift,llcrnrlat=min(lats)+y_shift,
+                  urcrnrlon=max(lons)+x_shift,urcrnrlat=min(50,max(lats))+y_shift,
+                  projection='merc',lat_1=33,lat_2=45,lon_0=-95,resolution='l')
+
+    return map
