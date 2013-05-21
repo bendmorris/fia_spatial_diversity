@@ -2,7 +2,7 @@ from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import cPickle as pkl
 import numpy as np
-from data import map
+from data import get_map
 
 
 x_shift = -1
