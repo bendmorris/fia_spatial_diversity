@@ -99,3 +99,22 @@ def raup_crick(comm1, comm2, species_pool, reps=1000):
     return ((len([s for s in ssexp if s > ssobs]) +
              len([s for s in ssexp if s == ssobs])/2.
              )/(len(ssexp)) - 0.5) * 2
+
+
+def process(r1, r2, tree, species_pool, reps=1000):
+    nti = beta_nti(r1, r2, tree,
+                   verbose=False, reps=reps)
+    if nti == np.nan: return
+
+    if abs(nti) >= 2:
+        # abs(beta NTI) >= 2 indicates selection
+        return 'selection' + ('+' if nti > 0 else '-')
+    else:
+        # < 2: raup-crick to determine drift or dispersal
+        rc = raup_crick(r1, r2, species_pool)
+        if rc <= -0.95:
+            return 'homogenizing dispersal'
+        elif rc >= 0.95:
+            return 'dispersal limitation'
+        else:
+            return 'drift'

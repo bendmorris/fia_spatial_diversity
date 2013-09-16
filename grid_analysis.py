@@ -85,23 +85,8 @@ def analyze(arg):
         if len(routes[r1]) < 2 or len(routes[r2]) < 2: continue
     
         try:
-            # compute beta NTI
-            nti = metrics.beta_nti(routes[r1], routes[r2], tree, 
-                                   verbose=False, reps=1000)
-            if nti == np.nan: continue
-
-            if abs(nti) >= 2:
-                # abs(beta NTI) >= 2 indicates selection
-                result = 'selection'
-            else:
-                # < 2: raup-crick to determine drift or dispersal
-                rc = metrics.raup_crick(routes[r1], routes[r2], species_pool)
-                if rc <= -0.95:
-                    result = 'homogenizing dispersal'
-                elif rc >= 0.95:
-                    result = 'dispersal limitation'
-                else:
-                    result = 'drift'
+            result = metrics.process(routes[r1], routes[r2], tree, species_pool)
+            if not result: continue
             comms.append(result)
         except IndexError:
             # this means a species wasn't found in our tree

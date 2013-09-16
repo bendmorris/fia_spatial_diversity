@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as s
 import math
+from data import get_map
 
 x_shift = -0.5
 y_shift = 0
@@ -37,7 +38,7 @@ for point in richness:
 for point in abundance:
     abundance[point] = np.log(abundance[point])
 for point in plot_density:
-    plot_density[point] = np.log(len(plot_density[point]))
+    plot_density[point] = (len(plot_density[point]))
         
 for title, results in ('richness', richness), ('abundance', abundance), ('plot density', plot_density):
     plt.figure()
@@ -45,9 +46,7 @@ for title, results in ('richness', richness), ('abundance', abundance), ('plot d
     lats = set([lat for lat, lon in results.keys()])
     lons = set([lon for lat, lon in results.keys()])
 
-    map = Basemap(llcrnrlon=min(lons)+x_shift,llcrnrlat=min(lats)+y_shift,
-                  urcrnrlon=max(lons)+x_shift,urcrnrlat=max(lats)+y_shift,
-                  projection='merc',lat_1=33,lat_2=45,lon_0=-95,resolution='l')
+    map = get_map(lats, lons, x_shift, y_shift)
     map.drawcoastlines(linewidth=1)
     map.drawcountries(linewidth=1)
     map.drawstates(linewidth=0.5)
